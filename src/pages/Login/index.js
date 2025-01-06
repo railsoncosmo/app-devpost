@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { View, Text, ActivityIndicator } from 'react-native';
 
 import { Container, Title, Input, Button, ButtonText, SignUpButton, SignUpText } from './styles';
+
+import { AuthContext } from '../../contexts/auth';
 
 export default function Login() {
   const [login, setLogin] = useState(true);
@@ -10,6 +12,8 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const { signUp, signIn, loadingAuth } = useContext(AuthContext);
+
   function toggleLogin() {
     setLogin(!login); //Irá setar o valor contrário do valor atual
     setEmail('');
@@ -17,19 +21,24 @@ export default function Login() {
     setPassword('');
   }
 
-  function handleSignIn(){
+  async function handleSignIn(){
     if(email === '' || password === '') {
       alert("Preencha todos os campos!");
       return;
     }
 
+    await signIn(email, password);
+
   }
 
-  function handleSignUp(){
+  async function handleSignUp(){
     if(name === '' ||email === '' || password === '') {
       alert("Preencha todos os campos!");
       return;
     }
+
+    await signUp(email, password, name);
+    alert("Usuário cadastrado com sucesso!");
     
   }
 
@@ -54,7 +63,11 @@ export default function Login() {
       />
 
       <Button onPress={handleSignIn}>
-        <ButtonText>Entrar</ButtonText>
+        {loadingAuth ? (
+          <ActivityIndicator size={25} color="#fff" />
+        ) : (
+          <ButtonText>Entrar</ButtonText>
+        )}
       </Button>
 
       <SignUpButton onPress={toggleLogin}>
@@ -92,7 +105,11 @@ export default function Login() {
       />
 
       <Button onPress={handleSignUp}>
-        <ButtonText>Cadastrar</ButtonText>
+      {loadingAuth ? (
+          <ActivityIndicator size={25} color="#fff" />
+        ) : (
+          <ButtonText>Cadastrar</ButtonText>
+        )}
       </Button>
 
       <SignUpButton onPress={toggleLogin}>
