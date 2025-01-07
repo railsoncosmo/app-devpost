@@ -1,7 +1,9 @@
-import React, { useState, createContext } from 'react';
+import React, { useState, createContext, useEffectt, useEffect } from 'react';
 
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const AuthContext = createContext({});
 
@@ -9,6 +11,24 @@ function AuthProvider({ children }) {
 
     const [user, setUser] = useState(null);
     const [loadingAuth, setLoadingAuth] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function loadStorage() {
+            const storageUser = await AsyncStorage.getItem('@authdevpost');
+
+            if(storageUser){ //Se houver um usuário salvo, ele irá ser setado na variável de estado de user
+                setUser(JSON.parse(storageUser)); //Convertendo o json em um objeto
+            }
+
+            setLoading(false);
+
+        }
+
+        loadStorage();
+        setLoading(false);
+
+    }, [])
 
     async function signUp(email, password, name) {
         setLoadingAuth(true);
@@ -29,6 +49,7 @@ function AuthProvider({ children }) {
                 }
 
                 setUser(data); //Setando os dados do usuário na variável de estado
+                storageUser(data);
                 setLoadingAuth(false);
             })
         })
@@ -55,6 +76,7 @@ function AuthProvider({ children }) {
             };
 
             setUser(data);
+            storageUser(data);
             setLoadingAuth(false);
         })
         .catch( (error) => {
@@ -63,10 +85,25 @@ function AuthProvider({ children }) {
         })
     }
 
+    async function signOut(){
+        await auth().signOut(); //Realizando o logout no firebase
+        await AsyncStorage.removeItem('@authdevpost') //Limpando os dados persistidos do usuário no app
+        .then( () => {
+            setUser(null); //Setando o usuário como nulo na variável de estado
+        })
+        .catch( (error) => {
+            alert("Não foi possivel deslogar, por favor, tente novamente!", error.message);
+        })
+    }
+
+    async function storageUser(data) { //Persistindo os dados do usuário no App
+        await AsyncStorage.setItem('@authdevpost', JSON.stringify(data));
+    }
+
     return(
         <AuthContext.Provider
             value={{
-                signed: !!user, signUp, signIn, loadingAuth //Expõe os dados para ser acessador dentro de toda a aplicação || "!!"" Converte o user em booleano 
+                signed: !!user, signUp, signIn, signOut, loadingAuth, loading //Expõe os dados para ser acessador dentro de toda a aplicação || "!!"" Converte o user em booleano 
             }}
         >
             {children}
