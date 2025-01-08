@@ -103,7 +103,7 @@ function AuthProvider({ children }) {
     return(
         <AuthContext.Provider
             value={{
-                signed: !!user, signUp, signIn, signOut, loadingAuth, loading //Expõe os dados para ser acessador dentro de toda a aplicação || "!!"" Converte o user em booleano 
+                signed: !!user, signUp, signIn, signOut, loadingAuth, loading, user //Expõe os dados para ser acessador dentro de toda a aplicação || "!!"" Converte o user em booleano 
             }}
         >
             {children}
