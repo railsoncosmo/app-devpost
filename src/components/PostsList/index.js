@@ -14,9 +14,50 @@ import {
 
 import { formatDistance } from "date-fns";
 import { ptBR } from "date-fns/locale";
+
+import firestore from '@react-native-firebase/firestore';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 function PostsList({ data, userId}) {
+
+  const [likePost, setLikePost] = useState(data?.likes);
+
+  async function handleLikePost(id, likes){
+    const docId = `${userId}_${id}`; //Criando um documento contendo o id do usuário da conta e o id do post
+
+    //Checando se o post ja foi curtido pelo usuário logado
+    const doc = await firestore().collection('likes').doc(docId).get();
+
+    if(doc.exists){
+
+      await firestore().collection('posts') //Se o usuário já tiver curtido, ele irá remover o like
+      .doc(id).update({
+        likes: likes - 1
+      })
+
+      await firestore().collection('likes').doc(docId) //após remover o like, ele irá deletar o documento do banco de dados
+      .delete()
+      .then(() => {
+        setLikePost(likes - 1);
+      })
+
+      return;
+    }
+
+    await firestore().collection('likes').doc(docId) //Se o usuário não tiver curtido, ele irá adicionar a coleção de likes
+    .set({
+      postId: id,
+      userId: userId
+    })
+
+    await firestore().collection('posts').doc(id) //Aumentando o like do post que foi curtido
+    .update({
+      likes: likes + 1
+    }).then(() => {
+      setLikePost(likes + 1);
+    })
+
+  }
 
   function formatTimePost(){
     const datePost = new Date(data?.created.seconds * 1000); //Transformando os segundos em data TimeStamp
@@ -49,10 +90,10 @@ function PostsList({ data, userId}) {
 
       <Actions>
 
-        <LikeButton>
-          <Like>{data?.likes === 0 ? '' : data?.likes}</Like>
+        <LikeButton onPress={ () => handleLikePost(data.id, likePost)}>
+          <Like>{likePost === 0 ? '' : likePost}</Like>
           <MaterialCommunityIcons 
-          name={data?.likes === 0 ? "heart-plus-outline" : 'cards-heart'} 
+          name={likePost === 0 ? "heart-plus-outline" : 'cards-heart'} 
           size={20} 
           color={"#e52246"}/>
         </LikeButton>

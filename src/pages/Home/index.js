@@ -33,7 +33,7 @@ export default function Home() {
           .orderBy("created", "desc") //Busca em ordem decrescente os dados do banco
           .limit(5) //Define a quantidade de dados que vai buscar
           .get()
-          .then((snapshot) => {
+          .then( snapshot => {
             if (isActive) {
               //Se estiver ativo, executa o callback
               setPosts([]);
@@ -68,8 +68,7 @@ export default function Home() {
   async function handleRefreshPosts(){
     setLoadingRefresh(true);
 
-        firestore()
-          .collection("posts")
+        firestore().collection("posts")
           .orderBy("created", "desc") //Busca em ordem decrescente os dados do banco
           .limit(5) //Define a quantidade de dados que vai buscar
           .get()
@@ -79,13 +78,13 @@ export default function Home() {
 
               const postList = [];
 
-              snapshot.docs.map((value) => {
+              snapshot.docs.map( value => {
                 //Setando os dados do banco na variável "postList"
                 postList.push({
                   ...value.data(),
                   id: value.id,
-                });
-              });
+                })
+              })
 
               setEmpytList(false); //Se o array estiver vazio, recebe true, se não false.
               setPosts(postList);
@@ -104,8 +103,7 @@ export default function Home() {
     }
     if(loading) return;
 
-    firestore()
-    .collection("posts")
+    firestore().collection("posts")
     .orderBy("created", "desc")
     .startAfter(lastItem) //Busca os dados depois do ultimo item
     .limit(5)
