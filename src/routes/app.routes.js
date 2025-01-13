@@ -8,7 +8,7 @@ import Home from "../pages/Home";
 import Search from "../pages/Search";
 import Profile from "../pages/Profile";
 import NewPosts from "../pages/NewPosts";
-import Feed from "../pages/Feed";
+import PostsUser from "../pages/PostsUser";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -36,10 +36,9 @@ function StackRoutes() {
             />
 
             <Stack.Screen
-                name="Feed"
-                component={Feed}
+                name="PostsUser"
+                component={PostsUser}
                 options={{
-                    headerShown: false,
                     headerTintColor: '#FFF',
                     headerStyle: {
                         backgroundColor: '#36393f'

@@ -15,12 +15,15 @@ import {
 import { formatDistance } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
+import { useNavigation } from "@react-navigation/native";
+
 import firestore from '@react-native-firebase/firestore';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 function PostsList({ data, userId}) {
 
   const [likePost, setLikePost] = useState(data?.likes);
+  const navigation = useNavigation();
 
   async function handleLikePost(id, likes){
     const docId = `${userId}_${id}`; //Criando um documento contendo o id do usuário da conta e o id do post
@@ -74,7 +77,7 @@ function PostsList({ data, userId}) {
 
   return (
     <Container>
-      <Header>
+      <Header onPress={ () => navigation.navigate("PostsUser", {title: data?.autor, userId: data?.userId})}>
          {data?.avatarUrl ? (
           <Avatar source={{uri: data?.avatarUrl}} />
         ) : (
